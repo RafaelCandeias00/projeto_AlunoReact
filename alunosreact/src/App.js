@@ -11,6 +11,7 @@ function App() {
   
   // Trata mudança de estado na aplicação relacionada aos dados do aluno
   const [data, setData]=useState([]); 
+  const [updateData, setUpdateData] = useState(true);
 
   // Definir um estado para controlar a janela Modal
   const [modalIncluir, setModalIncluir]=useState(false);
@@ -77,6 +78,7 @@ function App() {
       await axios.post(baseUrl, alunoSelecionado)
       .then(response=>{
         setData(data.concat(response.data));
+        setUpdateData(true);
         abrirFecharModalIncluir();
       }).catch(error=>{
         console.log(error);
@@ -96,6 +98,7 @@ function App() {
           aluno.email=resposta.email;
         }
       });
+      setUpdateData(true);
       abrirFecharModalEditar();
     }).catch(error=>{
       console.log(error);
@@ -106,6 +109,7 @@ function App() {
     await axios.delete(baseUrl+'/'+alunoSelecionado.alunoId)
     .then(response=>{
       setData(data.filter(aluno=>aluno.alunoId !== response.data));
+      setUpdateData(true);
       abrirFecharModalExcluir();
     }).catch(error=>{
       console.log(error);
@@ -125,8 +129,11 @@ function App() {
    * que vão modiciar o estado da aplicação
    */
   useEffect(()=>{
-    pedidoGet();
-  })
+    if(updateData){
+      pedidoGet();
+      setUpdateData(false);
+    }
+  }, [updateData])
 
   return (
     <div className="aluno-container">
