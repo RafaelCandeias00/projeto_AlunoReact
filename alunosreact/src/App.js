@@ -14,9 +14,8 @@ function App() {
 
   // Definir um estado para controlar a janela Modal
   const [modalIncluir, setModalIncluir]=useState(false);
-
-  // Definir um estado para controlar a janela Modal
   const [modalEditar, setModalEditar]=useState(false);
+  const [modalExcluir, setModalExcluir]=useState(false);
 
   // Cria o estado alunoSelecionado
   const [alunoSelecionado, setAlunoSelecionado]=useState({
@@ -34,6 +33,11 @@ function App() {
   //Criar o método abrirFecharModalEditar para controlar a abertura da janela Modal
   const abrirFecharModalEditar=()=>{
     setModalEditar(!modalEditar);
+  }
+
+  //Criar o método abrirFecharModalExcluir para controlar a abertura da janela Modal
+  const abrirFecharModalExcluir=()=>{
+    setModalExcluir(!modalExcluir);
   }
 
   /**
@@ -98,9 +102,19 @@ function App() {
     })
   }
 
+  const pedidoDelete=async()=>{
+    await axios.delete(baseUrl+'/'+alunoSelecionado.alunoId)
+    .then(response=>{
+      setData(data.filter(aluno=>aluno.alunoId !== response.data));
+      abrirFecharModalExcluir();
+    }).catch(error=>{
+      console.log(error);
+    })
+  }
+
   const selecionarAluno=(aluno, opcao)=>{
     setAlunoSelecionado(aluno);
-    (opcao==='Editar') && abrirFecharModalEditar();
+    (opcao==='Editar') ? abrirFecharModalEditar() : abrirFecharModalExcluir();
   }
 
   /**
@@ -194,6 +208,17 @@ function App() {
         <ModalFooter>
           <button className='btn btn-primary' onClick={()=>pedidoPut()}>Incluir</button>{"   "}
           <button className='btn btn-danger' onClick={()=>abrirFecharModalEditar()}>Cancelar</button>
+        </ModalFooter>
+      </Modal>
+
+      <Modal isOpen={modalExcluir}>
+        <ModalBody>
+          Confirma a exclusão deste(a) aluno(a): {alunoSelecionado && alunoSelecionado.nome}?
+        </ModalBody>
+
+        <ModalFooter>
+          <button className='btn btn-primary' onClick={()=>pedidoDelete()}>Sim</button>{"   "}
+          <button className='btn btn-danger' onClick={()=>abrirFecharModalExcluir()}>Não</button>
         </ModalFooter>
       </Modal>
     </div>
